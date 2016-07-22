@@ -14,14 +14,12 @@ $app = new \Slim\Slim();
 $app->add(new \CorsSlim\CorsSlim());
 
 /* Database Configuration */
-$dbhost   = 'localhost';
+$dbhost   = 'ganga.cxcnagtujnjl.ap-south-1.rds.amazonaws.com';
 $dbuser   = 'haerp';
 $dbpass   = 'neon04$HAERP';
 $dbname   = 'haerp';
-$dbmethod = 'mysql:dbname=';
-
-$dsn = $dbmethod.$dbname;
-$pdo = new PDO($dsn, $dbuser, $dbpass);
+$dbmethod = 'mysql:host='.$dbhost.';dbname='.$dbname;
+$pdo = new PDO($dbmethod, $dbuser, $dbpass);
 $db = new NotORM($pdo);
 
 
