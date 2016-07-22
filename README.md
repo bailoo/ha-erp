@@ -1,2 +1,7 @@
 # ha-erp
-HotelArmy ERP
+HotelArmy ERP API v0.1
+
+/user/:mobile
+
+/item/:userid
+
