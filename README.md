@@ -8,17 +8,20 @@ POST return id
 GET return id  
 PUT
 
+/products
+GET all products
+
+/products/:name
+GET products search name
+
+/products/catid/:catid
+GET products
+
 /products/productid/:productid
 Take userid from header
 POST return productid
 GET
 PUT
-
-/products/{:name}
-GET return all products or search name
-
-/products/catid/:catid
-GET return products
 
 /reports
 GET category id and product quantity in it

@@ -14,7 +14,8 @@ $app = new \Slim\Slim();
 $app->add(new \CorsSlim\CorsSlim());
 
 /* Database Configuration */
-$dbhost   = 'ganga.cxcnagtujnjl.ap-south-1.rds.amazonaws.com';
+#$dbhost   = 'ganga.cxcnagtujnjl.ap-south-1.rds.amazonaws.com';
+$dbhost   = 'localhost';
 $dbuser   = 'haerp';
 $dbpass   = 'neon04$HAERP';
 $dbname   = 'haerp';
@@ -31,9 +32,19 @@ $db = new NotORM($pdo);
 $app->get('/', function(){
 	echo "HotelArmy ERP API v0.1<br/>\n";
 	echo "<br/>\n";	
-	echo "/user/:mobile <br/>\n";
+	echo "/users/:mobile <br/>\n";
 	echo "<br/>\n";	
-	echo "/item/:userid <br/>\n";
+	echo "/products/ <br/>\n";
+	echo "<br/>\n";	
+	echo "/products/:name <br/>\n";
+	echo "<br/>\n";	
+	echo "/products/catid/:catid <br/>\n";
+	echo "<br/>\n";	
+	echo "/products/productid/:productid <br/>\n";
+	echo "<br/>\n";	
+	echo "/reports <br/>\n";
+	echo "<br/>\n";	
+	echo "/categories <br/>\n";
 	echo "<br/>\n";	
 });
 
@@ -42,16 +53,18 @@ $app->get('/', function(){
 ******************/
 
 // Get userid
-$app->get('/user/:mobile', function($mobile) use ($app, $db) {
-    $app->response()->header("Content-Type", "application/json");
+$app->get('/users/:mobile', function($mobile) use ($app, $db) {
+    $app->response()->headers->set("Content-Type", "application/json");
     $user = $db->user()->where('mobile', $mobile);
     if($data = $user->fetch()){
+        $app->response()->setStatus(200);
         echo json_encode(array(
             'id' => $data['id'],
             'mobile' => $data['mobile']
         ));
     }
     else{
+        $app->response()->setStatus(204);
         echo json_encode(array(
             'status' => false,
             'message' => "mobile $mobile does not exist"
@@ -60,7 +73,7 @@ $app->get('/user/:mobile', function($mobile) use ($app, $db) {
 });
 
 // Add a new user 
-$app->post('/user', function() use($app, $db){
+$app->post('/users', function() use($app, $db){
     $app->response()->header("Content-Type", "application/json");
     $user = $app->request()->post();
     $result = $db->user->insert($user);
@@ -68,7 +81,7 @@ $app->post('/user', function() use($app, $db){
 });
 
 // Update a user 
-$app->put('/user/:id', function($id) use($app, $db){
+$app->put('/users/:id', function($id) use($app, $db){
     $app->response()->header("Content-Type", "application/json");
     $user = $db->user()->where("id", $id);
     if ($user->fetch()) {
@@ -88,7 +101,7 @@ $app->put('/user/:id', function($id) use($app, $db){
 });
 
 // Remove a user
-$app->delete('/user/:id', function($id) use($app, $db){
+$app->delete('/users/:id', function($id) use($app, $db){
     $app->response()->header("Content-Type", "application/json");
     $user = $db->user()->where('id', $id);
     if($user->fetch()){
@@ -108,32 +121,48 @@ $app->delete('/user/:id', function($id) use($app, $db){
 
 
 /*****************
-**  Items 	**
+**  Products	**
 ******************/
 
-// Get all items of a user
-$app->get('/item/:userid/', function ($userid) use($app, $db) {
-    $user = array();
-    foreach ($db->item()->where('userid', $userid) as $item) {
-
-        $prods[]  = array(
-            'id' => $item['id'],			/* item ID */
-            'userid' => $item['userid'],
-            'name' => $item['name'],
-            'details' => $item['details'],
-            'catid' => $item['catid'],
-            'company' => $item['company'],
-            'price' => $item['price'],
-            'qty' => $item['qty'],
-            'location' => $item['location'],
-            'date' => $item['date'],
-            'productid' => $item['productid'],
-            'brand' => $item['brand'],
-            'minlimit' => $item['minlimit']
-        );
-    }
+// Get all products of a user
+$app->get('/products', function () use($app, $db) {
     $app->response()->header("Content-Type", "application/json");
-    echo json_encode($prods);
+	$userid = $app->request->headers->get('User-Id');
+	if ($userid == '') {
+        echo json_encode(array(
+            "status" => false,
+            "message" => "set custom header User-Id"
+        ));
+	}
+	else {
+    	$user = array();
+    	foreach ($db->item()->where('userid', $userid) as $item) {
+			$prod[] = array(
+            	'id' => $item['id'],			/* item ID */
+	            'userid' => $item['userid'],
+            	'name' => $item['name'],
+            	'details' => $item['details'],
+            	'catid' => $item['catid'],
+	            'company' => $item['company'],
+	            'price' => $item['price'],
+	            'qty' => $item['qty'],
+	            'location' => $item['location'],
+	            'date' => $item['date'],
+	            'productid' => $item['productid'],
+	            'brand' => $item['brand'],
+	            'minlimit' => $item['minlimit']
+	        );
+		}
+		if (!isset($prod)) {
+        	echo json_encode(array(
+            	"status" => false,
+            	"message" => "user id $userid does not exist"
+        	));
+		}
+		else {
+			echo json_encode($prod);
+	    }
+	}
 });
 
 // Add a new item
