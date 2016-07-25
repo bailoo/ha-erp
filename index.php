@@ -64,7 +64,7 @@ $app->get('/users/:mobile', function($mobile) use ($app, $db) {
         ));
     }
     else{
-        $app->response()->setStatus(200);
+        $app->response()->setStatus(204);
         echo json_encode(array(
             'status' => false,
             'message' => "mobile $mobile does not exist"
