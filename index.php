@@ -57,7 +57,6 @@ $app->get('/users/:mobile', function($mobile) use ($app, $db) {
     $app->response()->headers->set("Content-Type", "application/json");
     $user = $db->user()->where('mobile', $mobile);
     if($data = $user->fetch()){
-        $app->response()->setStatus(200);
         echo json_encode(array(
             'id' => $data['id'],
             'mobile' => $data['mobile']
@@ -65,10 +64,6 @@ $app->get('/users/:mobile', function($mobile) use ($app, $db) {
     }
     else{
         $app->response()->setStatus(204);
-        echo json_encode(array(
-            'status' => false,
-            'message' => "mobile $mobile does not exist"
-        ));
     }
 });
 
@@ -93,10 +88,7 @@ $app->put('/users/:id', function($id) use($app, $db){
             ));
     }
     else{
-        echo json_encode(array(
-            "status" => false,
-            "message" => "user id $id does not exist"
-        ));
+        $app->response()->setStatus(204);
     }
 });
 
@@ -112,10 +104,7 @@ $app->delete('/users/:id', function($id) use($app, $db){
         ));
     }
     else{
-        echo json_encode(array(
-            "status" => false,
-            "message" => "user id $id does not exist"
-        ));
+        $app->response()->setStatus(204);
     }
 });
 
@@ -153,10 +142,7 @@ $app->get('/products', function () use($app, $db) {
 	        );
 		}
 		if (!isset($prod)) {
-        	echo json_encode(array(
-            	"status" => false,
-            	"message" => "no products found"
-        	));
+        	$app->response()->setStatus(204);
 		}
 		else {
 			echo json_encode($prod);
@@ -193,10 +179,7 @@ $app->get('/products/:name', function ($name) use($app, $db) {
 	        );
 		}
 		if (!isset($prod)) {
-        	echo json_encode(array(
-            	"status" => false,
-            	"message" => "no products found"
-        	));
+        	$app->response()->setStatus(204);
 		}
 		else {
 			echo json_encode($prod);
@@ -234,10 +217,7 @@ $app->get('/products/catid/:catid', function ($catid) use($app, $db) {
 	        );
 		}
 		if (!isset($prod)) {
-        	echo json_encode(array(
-            	"status" => false,
-            	"message" => "no products found"
-        	));
+        	$app->response()->setStatus(204);
 		}
 		else {
 			echo json_encode($prod);
@@ -278,10 +258,7 @@ $app->get('/products/productid/:id', function ($id) use($app, $db) {
 	        );
 		}
 		if (!isset($prod)) {
-        	echo json_encode(array(
-            	"status" => false,
-            	"message" => "no products found"
-        	));
+        	$app->response()->setStatus(204);
 		}
 		else {
 			echo json_encode($prod);
@@ -311,10 +288,7 @@ $app->put('/products/productid/:id', function($id) use($app, $db){
             ));
     }
     else{
-        echo json_encode(array(
-            "status" => false,
-            "message" => "Order id $id does not exist"
-        ));
+        $app->response()->setStatus(204);
     }
 });
 
@@ -330,10 +304,7 @@ $app->delete('/products/productid/:id', function($id) use($app, $db){
         ));
     }
     else{
-        echo json_encode(array(
-            "status" => false,
-            "message" => "Order id $id does not exist"
-        ));
+        $app->response()->setStatus(204);
     }
 });
 
@@ -355,10 +326,7 @@ $app->get('/reports', function () use($app, $db) {
 			);
 		}
 		if (!isset($prod)) {
-        	echo json_encode(array(
-            	"status" => false,
-            	"message" => "no categories found"
-        	));
+        	$app->response()->setStatus(204);
 		}
 		else {
 			echo json_encode($prod);
@@ -376,10 +344,7 @@ $app->get('/categories', function () use($app, $db) {
 		);
 	}
 	if (!isset($prod)) {
-        echo json_encode(array(
-            "status" => false,
-            "message" => "no categories found"
-        ));
+        $app->response()->setStatus(204);
 	}
 	else {
 		echo json_encode($prod);
