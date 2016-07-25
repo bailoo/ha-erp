@@ -49,7 +49,7 @@ $app->get('/', function(){
 });
 
 /*****************
-**  User	**
+**  User		**
 ******************/
 
 // Get userid
@@ -64,7 +64,7 @@ $app->get('/users/:mobile', function($mobile) use ($app, $db) {
         ));
     }
     else{
-        $app->response()->setStatus(204);
+        $app->response()->setStatus(200);
         echo json_encode(array(
             'status' => false,
             'message' => "mobile $mobile does not exist"
@@ -135,7 +135,6 @@ $app->get('/products', function () use($app, $db) {
         ));
 	}
 	else {
-    	$user = array();
     	foreach ($db->item()->where('userid', $userid) as $item) {
 			$prod[] = array(
             	'id' => $item['id'],			/* item ID */
@@ -156,7 +155,7 @@ $app->get('/products', function () use($app, $db) {
 		if (!isset($prod)) {
         	echo json_encode(array(
             	"status" => false,
-            	"message" => "user id $userid does not exist"
+            	"message" => "no products found"
         	));
 		}
 		else {
@@ -165,8 +164,134 @@ $app->get('/products', function () use($app, $db) {
 	}
 });
 
+// Search product name
+$app->get('/products/:name', function ($name) use($app, $db) {
+    $app->response()->header("Content-Type", "application/json");
+	$userid = $app->request->headers->get('User-Id');
+	if ($userid == '') {
+        echo json_encode(array(
+            "status" => false,
+            "message" => "set custom header User-Id"
+        ));
+	}
+	else {
+    	foreach ($db->item()->where('userid', $userid)->and('name LIKE ?', "%$name%") as $item) {
+			$prod[] = array(
+            	'id' => $item['id'],			/* item ID */
+	            'userid' => $item['userid'],
+            	'name' => $item['name'],
+            	'details' => $item['details'],
+            	'catid' => $item['catid'],
+	            'company' => $item['company'],
+	            'price' => $item['price'],
+	            'qty' => $item['qty'],
+	            'location' => $item['location'],
+	            'date' => $item['date'],
+	            'productid' => $item['productid'],
+	            'brand' => $item['brand'],
+	            'minlimit' => $item['minlimit']
+	        );
+		}
+		if (!isset($prod)) {
+        	echo json_encode(array(
+            	"status" => false,
+            	"message" => "no products found"
+        	));
+		}
+		else {
+			echo json_encode($prod);
+	    }
+	}
+});
+
+
+// get all products in category
+$app->get('/products/catid/:catid', function ($catid) use($app, $db) {
+    $app->response()->header("Content-Type", "application/json");
+	$userid = $app->request->headers->get('User-Id');
+	if ($userid == '') {
+        echo json_encode(array(
+            "status" => false,
+            "message" => "set custom header User-Id"
+        ));
+	}
+	else {
+    	foreach ($db->item()->where('userid', $userid)->and('catid', $catid) as $item) {
+			$prod[] = array(
+            	'id' => $item['id'],			/* item ID */
+	            'userid' => $item['userid'],
+            	'name' => $item['name'],
+            	'details' => $item['details'],
+            	'catid' => $item['catid'],
+	            'company' => $item['company'],
+	            'price' => $item['price'],
+	            'qty' => $item['qty'],
+	            'location' => $item['location'],
+	            'date' => $item['date'],
+	            'productid' => $item['productid'],
+	            'brand' => $item['brand'],
+	            'minlimit' => $item['minlimit']
+	        );
+		}
+		if (!isset($prod)) {
+        	echo json_encode(array(
+            	"status" => false,
+            	"message" => "no products found"
+        	));
+		}
+		else {
+			echo json_encode($prod);
+	    }
+	}
+});
+
+// get product by id
+// userid not required 
+$app->get('/products/productid/:id', function ($id) use($app, $db) {
+    $app->response()->header("Content-Type", "application/json");
+	/* 
+	$userid = $app->request->headers->get('User-Id');
+	if ($userid == '') {
+        echo json_encode(array(
+            "status" => false,
+            "message" => "set custom header User-Id"
+        ));
+	}
+	else {
+    	foreach ($db->item()->where('userid', $userid)->and('id', $id) as $item) {
+	*/
+    	foreach ($db->item()->where('id', $id) as $item) {
+			$prod[] = array(
+            	'id' => $item['id'],			/* item ID */
+	            'userid' => $item['userid'],
+            	'name' => $item['name'],
+            	'details' => $item['details'],
+            	'catid' => $item['catid'],
+	            'company' => $item['company'],
+	            'price' => $item['price'],
+	            'qty' => $item['qty'],
+	            'location' => $item['location'],
+	            'date' => $item['date'],
+	            'productid' => $item['productid'],
+	            'brand' => $item['brand'],
+	            'minlimit' => $item['minlimit']
+	        );
+		}
+		if (!isset($prod)) {
+        	echo json_encode(array(
+            	"status" => false,
+            	"message" => "no products found"
+        	));
+		}
+		else {
+			echo json_encode($prod);
+	    }
+	//}
+});
+
+
 // Add a new item
-$app->post('/item', function() use($app, $db){
+$app->post('/products/productid', function() use($app, $db){
     $app->response()->header("Content-Type", "application/json");
     $item = $app->request()->post();
     $result = $db->item->insert($item);
@@ -174,7 +299,7 @@ $app->post('/item', function() use($app, $db){
 });
 
 // Update an item
-$app->put('/item/:id', function($id) use($app, $db){
+$app->put('/products/productid/:id', function($id) use($app, $db){
     $app->response()->header("Content-Type", "application/json");
     $item = $db->item()->where("id", $id);
     if ($item->fetch()) {
@@ -194,7 +319,7 @@ $app->put('/item/:id', function($id) use($app, $db){
 });
 
 // Remove an item 
-$app->delete('/item/:id', function($id) use($app, $db){
+$app->delete('/products/productid/:id', function($id) use($app, $db){
     $app->response()->header("Content-Type", "application/json");
     $item = $db->item()->where('id', $id);
     if($item->fetch()){
@@ -211,6 +336,56 @@ $app->delete('/item/:id', function($id) use($app, $db){
         ));
     }
 });
+
+// get reports category id and total product count in it
+$app->get('/reports', function () use($app, $db) {
+    $app->response()->header("Content-Type", "application/json");
+	$userid = $app->request->headers->get('User-Id');
+	if ($userid == '') {
+        echo json_encode(array(
+            "status" => false,
+            "message" => "set custom header User-Id"
+        ));
+	}
+	else {
+    	foreach ($db->category() as $cat) {
+			$prod[] = array(
+        		'catid' => $cat['id'],			/* category ID */
+	    		'count' => $db->item()->where('catid', $cat['id'])->and('userid', $userid)->count()
+			);
+		}
+		if (!isset($prod)) {
+        	echo json_encode(array(
+            	"status" => false,
+            	"message" => "no categories found"
+        	));
+		}
+		else {
+			echo json_encode($prod);
+		}
+	}	
+});
+
+// get categories
+$app->get('/categories', function () use($app, $db) {
+    $app->response()->header("Content-Type", "application/json");
+    foreach ($db->category() as $cat) {
+		$prod[] = array(
+        	'id' => $cat['id'],			/* category ID */
+	    	'name' => $cat['name']
+		);
+	}
+	if (!isset($prod)) {
+        echo json_encode(array(
+            "status" => false,
+            "message" => "no categories found"
+        ));
+	}
+	else {
+		echo json_encode($prod);
+	}
+});
+
 
 /* Run the application */
 $app->run();
