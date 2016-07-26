@@ -34,15 +34,15 @@ $app->get('/', function(){
 	echo "<br/>\n";	
 	echo "/users/:mobile <br/>\n";
 	echo "<br/>\n";	
-	echo "/products/ <br/>\n";
+	echo "/products/:userid <br/>\n";
 	echo "<br/>\n";	
-	echo "/products/:name <br/>\n";
+	echo "/products/:userid/:name <br/>\n";
 	echo "<br/>\n";	
-	echo "/products/catid/:catid <br/>\n";
+	echo "/products/catid/:userid/:catid <br/>\n";
 	echo "<br/>\n";	
-	echo "/products/productid/:productid <br/>\n";
+	echo "/products/productid/:userid/:productid <br/>\n";
 	echo "<br/>\n";	
-	echo "/reports <br/>\n";
+	echo "/reports/:userid <br/>\n";
 	echo "<br/>\n";	
 	echo "/categories <br/>\n";
 	echo "<br/>\n";	
@@ -76,9 +76,9 @@ $app->post('/users', function() use($app, $db){
 });
 
 // Update a user 
-$app->put('/users/:id', function($id) use($app, $db){
+$app->put('/users/:userid', function($userid) use($app, $db){
     $app->response()->header("Content-Type", "application/json");
-    $user = $db->user()->where("id", $id);
+    $user = $db->user()->where("id", $userid);
     if ($user->fetch()) {
         $post = $app->request()->put();
         $result = $user->update($post);
@@ -93,9 +93,9 @@ $app->put('/users/:id', function($id) use($app, $db){
 });
 
 // Remove a user
-$app->delete('/users/:id', function($id) use($app, $db){
+$app->delete('/users/:userid', function($userid) use($app, $db){
     $app->response()->header("Content-Type", "application/json");
-    $user = $db->user()->where('id', $id);
+    $user = $db->user()->where('id', $userid);
     if($user->fetch()){
         $result = $user->delete();
         echo json_encode(array(
@@ -114,14 +114,10 @@ $app->delete('/users/:id', function($id) use($app, $db){
 ******************/
 
 // Get all products of a user
-$app->get('/products', function () use($app, $db) {
+$app->get('/products/:userid', function ($userid) use($app, $db) {
     $app->response()->header("Content-Type", "application/json");
-	$userid = $app->request->headers->get('User-Id');
 	if ($userid == '') {
-        echo json_encode(array(
-            "status" => false,
-            "message" => "set custom header User-Id"
-        ));
+        $app->response()->setStatus(204);
 	}
 	else {
     	foreach ($db->item()->where('userid', $userid) as $item) {
@@ -151,14 +147,10 @@ $app->get('/products', function () use($app, $db) {
 });
 
 // Search product name
-$app->get('/products/:name', function ($name) use($app, $db) {
+$app->get('/products/:userid/:name', function ($userid, $name) use($app, $db) {
     $app->response()->header("Content-Type", "application/json");
-	$userid = $app->request->headers->get('User-Id');
 	if ($userid == '') {
-        echo json_encode(array(
-            "status" => false,
-            "message" => "set custom header User-Id"
-        ));
+        $app->response()->setStatus(204);
 	}
 	else {
     	foreach ($db->item()->where('userid', $userid)->and('name LIKE ?', "%$name%") as $item) {
@@ -189,14 +181,10 @@ $app->get('/products/:name', function ($name) use($app, $db) {
 
 
 // get all products in category
-$app->get('/products/catid/:catid', function ($catid) use($app, $db) {
+$app->get('/products/catid/:userid/:catid', function ($userid, $catid) use($app, $db) {
     $app->response()->header("Content-Type", "application/json");
-	$userid = $app->request->headers->get('User-Id');
 	if ($userid == '') {
-        echo json_encode(array(
-            "status" => false,
-            "message" => "set custom header User-Id"
-        ));
+        $app->response()->setStatus(204);
 	}
 	else {
     	foreach ($db->item()->where('userid', $userid)->and('catid', $catid) as $item) {
@@ -227,7 +215,7 @@ $app->get('/products/catid/:catid', function ($catid) use($app, $db) {
 
 // get product by id
 // userid not required 
-$app->get('/products/productid/:id', function ($id) use($app, $db) {
+$app->get('/products/productid/:userid/:productid', function ($userid, $productid) use($app, $db) {
     $app->response()->header("Content-Type", "application/json");
 	/* 
 	$userid = $app->request->headers->get('User-Id');
@@ -238,9 +226,9 @@ $app->get('/products/productid/:id', function ($id) use($app, $db) {
         ));
 	}
 	else {
-    	foreach ($db->item()->where('userid', $userid)->and('id', $id) as $item) {
+    	foreach ($db->item()->where('userid', $userid)->and('id', $productid) as $item) {
 	*/
-    	foreach ($db->item()->where('id', $id) as $item) {
+    	foreach ($db->item()->where('id', $productid) as $item) {
 			$prod[] = array(
             	'id' => $item['id'],			/* item ID */
 	            'userid' => $item['userid'],
@@ -276,9 +264,9 @@ $app->post('/products/productid', function() use($app, $db){
 });
 
 // Update an item
-$app->put('/products/productid/:id', function($id) use($app, $db){
+$app->put('/products/productid/:id', function($productid) use($app, $db){
     $app->response()->header("Content-Type", "application/json");
-    $item = $db->item()->where("id", $id);
+    $item = $db->item()->where("id", $productid);
     if ($item->fetch()) {
         $post = $app->request()->put();
         $result = $item->update($post);
@@ -293,9 +281,9 @@ $app->put('/products/productid/:id', function($id) use($app, $db){
 });
 
 // Remove an item 
-$app->delete('/products/productid/:id', function($id) use($app, $db){
+$app->delete('/products/productid/:productid', function($productid) use($app, $db){
     $app->response()->header("Content-Type", "application/json");
-    $item = $db->item()->where('id', $id);
+    $item = $db->item()->where('id', $productid);
     if($item->fetch()){
         $result = $item->delete();
         echo json_encode(array(
@@ -309,19 +297,12 @@ $app->delete('/products/productid/:id', function($id) use($app, $db){
 });
 
 // get reports category id and total product count in it
-$app->get('/reports', function () use($app, $db) {
+$app->get('/reports/:userid', function ($userid) use($app, $db) {
     $app->response()->header("Content-Type", "application/json");
-	$userid = $app->request->headers->get('User-Id');
-	if ($userid == '') {
-        echo json_encode(array(
-            "status" => false,
-            "message" => "set custom header User-Id"
-        ));
-	}
-	else {
+	if ($db->user()->where('id', $userid)->fetch()) {		/* userid exists */
     	foreach ($db->category() as $cat) {
 			$prod[] = array(
-        		'catid' => $cat['id'],			/* category ID */
+        		'catid' => $cat['id'],						/* category ID */
 	    		'count' => $db->item()->where('catid', $cat['id'])->and('userid', $userid)->count()
 			);
 		}
@@ -331,6 +312,9 @@ $app->get('/reports', function () use($app, $db) {
 		else {
 			echo json_encode($prod);
 		}
+	}
+	else {													/* userid does not exist */
+        $app->response()->setStatus(204);
 	}	
 });
 
