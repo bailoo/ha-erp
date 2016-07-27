@@ -5,17 +5,31 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-/* Require Slim and plugins */
+/* Require Slim */
 require 'vendor/autoload.php';
-require 'plugins/NotORM.php';
-require 'settings.php';
 
 /* Register autoloader and instantiate Slim */
 $app = new \Slim\Slim();
 $app->add(new \CorsSlim\CorsSlim());
 
+/* database */
+require 'settings.php';
 $pdo = new PDO(DB_METHOD.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASS);
+
+/* plugin notORM */
+require 'plugins/NotORM.php';
 $db = new NotORM($pdo);
+
+/*****************
+**  Functions	**
+******************/
+
+function echoJson($truth, $payload) {
+	echo json_encode(array(
+		'success' => $truth,
+		'payload' => $payload
+	));
+}
 
 
 /*****************
@@ -43,7 +57,7 @@ $app->get('/', function(){
 });
 
 /*****************
-**  User		**
+**  Users		**
 ******************/
 
 // Get userid
@@ -51,7 +65,7 @@ $app->get('/users/:mobile', function($mobile) use ($app, $db) {
     $app->response()->headers->set("Content-Type", "application/json");
     $user = $db->user()->where('mobile', $mobile);
     if($data = $user->fetch()){
-        echo json_encode(array(
+        echoJson(TRUE, array(
             'id' => $data['id'],
             'mobile' => $data['mobile']
         ));
@@ -66,7 +80,7 @@ $app->post('/users', function() use($app, $db){
     $app->response()->header("Content-Type", "application/json");
     $user = $app->request()->post();
     $result = $db->user->insert($user);
-    echo json_encode(array('id' => $result['id']));
+    echoJson(TRUE, array('id' => $result['id']));
 });
 
 // Update a user 
@@ -76,7 +90,7 @@ $app->put('/users/:userid', function($userid) use($app, $db){
     if ($user->fetch()) {
         $post = $app->request()->put();
         $result = $user->update($post);
-        echo json_encode(array(
+        echoJson(TRUE, array(
             "status" => (bool)$result,
             "message" => "user updated successfully"
             ));
@@ -92,7 +106,7 @@ $app->delete('/users/:userid', function($userid) use($app, $db){
     $user = $db->user()->where('id', $userid);
     if($user->fetch()){
         $result = $user->delete();
-        echo json_encode(array(
+        echoJson(TRUE, array(
             "status" => true,
             "message" => "user deleted successfully"
         ));
@@ -114,8 +128,9 @@ $app->get('/products/:userid', function ($userid) use($app, $db) {
         $app->response()->setStatus(204);
 	}
 	else {
+		$prod = array();
     	foreach ($db->item()->where('userid', $userid) as $item) {
-			$prod[] = array(
+			$prod[$item['id']] = array(
             	'id' => $item['id'],			/* item ID */
 	            'userid' => $item['userid'],
             	'name' => $item['name'],
@@ -135,7 +150,7 @@ $app->get('/products/:userid', function ($userid) use($app, $db) {
         	$app->response()->setStatus(204);
 		}
 		else {
-			echo json_encode($prod);
+			echoJson(TRUE, $prod);
 	    }
 	}
 });
@@ -168,7 +183,7 @@ $app->get('/products/:userid/:name', function ($userid, $name) use($app, $db) {
         	$app->response()->setStatus(204);
 		}
 		else {
-			echo json_encode($prod);
+			echoJson(TRUE, $prod);
 	    }
 	}
 });
@@ -202,7 +217,7 @@ $app->get('/products/catid/:userid/:catid', function ($userid, $catid) use($app,
         	$app->response()->setStatus(204);
 		}
 		else {
-			echo json_encode($prod);
+			echoJson(TRUE, $prod);
 	    }
 	}
 });
@@ -214,7 +229,7 @@ $app->get('/products/productid/:userid/:productid', function ($userid, $producti
 	/* 
 	$userid = $app->request->headers->get('User-Id');
 	if ($userid == '') {
-        echo json_encode(array(
+        echoJson(FALSE, array(
             "status" => false,
             "message" => "set custom header User-Id"
         ));
@@ -243,7 +258,7 @@ $app->get('/products/productid/:userid/:productid', function ($userid, $producti
         	$app->response()->setStatus(204);
 		}
 		else {
-			echo json_encode($prod);
+			echoJson(TRUE, $prod);
 	    }
 	//}
 });
@@ -254,7 +269,7 @@ $app->post('/products/productid', function() use($app, $db){
     $app->response()->header("Content-Type", "application/json");
     $item = $app->request()->post();
     $result = $db->item->insert($item);
-    echo json_encode(array('id' => $result['id']));
+    echoJson(TRUE, array('id' => $result['id']));
 });
 
 // Update an item
@@ -264,7 +279,7 @@ $app->put('/products/productid/:id', function($productid) use($app, $db){
     if ($item->fetch()) {
         $post = $app->request()->put();
         $result = $item->update($post);
-        echo json_encode(array(
+        echoJson(TRUE, array(
             "status" => (bool)$result,
             "message" => "See status"
             ));
@@ -280,7 +295,7 @@ $app->delete('/products/productid/:productid', function($productid) use($app, $d
     $item = $db->item()->where('id', $productid);
     if($item->fetch()){
         $result = $item->delete();
-        echo json_encode(array(
+        echoJson(TRUE, array(
             "status" => true,
             "message" => "Product deleted successfully"
         ));
@@ -304,7 +319,7 @@ $app->get('/reports/:userid', function ($userid) use($app, $db) {
         	$app->response()->setStatus(204);
 		}
 		else {
-			echo json_encode($prod);
+			echoJson(TRUE, $prod);
 		}
 	}
 	else {													/* userid does not exist */
@@ -325,7 +340,7 @@ $app->get('/categories', function () use($app, $db) {
         $app->response()->setStatus(204);
 	}
 	else {
-		echo json_encode($prod);
+		echoJson(TRUE, $prod);
 	}
 });
 
