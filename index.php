@@ -8,19 +8,13 @@ error_reporting(E_ALL);
 /* Require Slim and plugins */
 require 'vendor/autoload.php';
 require 'plugins/NotORM.php';
+require 'settings.php';
 
 /* Register autoloader and instantiate Slim */
 $app = new \Slim\Slim();
 $app->add(new \CorsSlim\CorsSlim());
 
-/* Database Configuration */
-#$dbhost   = 'ganga.cxcnagtujnjl.ap-south-1.rds.amazonaws.com';
-$dbhost   = 'localhost';
-$dbuser   = 'haerp';
-$dbpass   = 'neon04$HAERP';
-$dbname   = 'haerp';
-$dbmethod = 'mysql:host='.$dbhost.';dbname='.$dbname;
-$pdo = new PDO($dbmethod, $dbuser, $dbpass);
+$pdo = new PDO(DB_METHOD.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASS);
 $db = new NotORM($pdo);
 
 
@@ -272,7 +266,7 @@ $app->put('/products/productid/:id', function($productid) use($app, $db){
         $result = $item->update($post);
         echo json_encode(array(
             "status" => (bool)$result,
-            "message" => "Order updated successfully"
+            "message" => "See status"
             ));
     }
     else{
@@ -288,7 +282,7 @@ $app->delete('/products/productid/:productid', function($productid) use($app, $d
         $result = $item->delete();
         echo json_encode(array(
             "status" => true,
-            "message" => "Order deleted successfully"
+            "message" => "Product deleted successfully"
         ));
     }
     else{
