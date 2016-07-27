@@ -71,7 +71,7 @@ CREATE TABLE `item` (
   `minlimit` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `userid` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -80,7 +80,7 @@ CREATE TABLE `item` (
 
 LOCK TABLES `item` WRITE;
 /*!40000 ALTER TABLE `item` DISABLE KEYS */;
-INSERT INTO `item` VALUES (1,1,'Glycerine Soap','25g Bar',2,'J S and Sons',6,300,'','','22-07-2016',1,'',50);
+INSERT INTO `item` VALUES (1,1,'Glycerine Soap','25g Bar',2,'J S and Sons',6,300,'','','22-07-2016',1,'',50),(2,1,'Shampoo','20ml Bottle',2,'Kimirica',11,200,'','','28-07-2016',3,'Kimirica',40),(3,1,'Bodywash','40ml Bottle',2,'Dharam Chand Ladha Mal',9,300,'','','27-07-2016',2,'Naulakha',50),(4,1,'Ultrabrite Floor Cleaner','1L Bottle',1,'Alps India',110,80,'','','27-07-2016',4,'Ultrabrite',5);
 /*!40000 ALTER TABLE `item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -95,7 +95,7 @@ CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `mobile` varchar(10) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -104,7 +104,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'9650368241'),(2,'5674567890');
+INSERT INTO `user` VALUES (1,'9650368241'),(2,'5674567890'),(3,'');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -117,4 +117,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-07-23  0:37:44
+-- Dump completed on 2016-07-28  4:36:26
